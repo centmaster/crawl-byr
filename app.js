@@ -31,25 +31,19 @@ function getTitles (cookie) {
 
     superagent.get(cnodeUrl)
         .set("Cookie",'nforum[UTMPUSERID]=centmaster; nforum[PASSWORD]=3BiOD9Oa3bii6juOdrIr4A%3D%3D; nforum[UTMPKEY]=31287208; nforum[UTMPNUM]=915; Hm_lvt_a2cb7064fdf52fd51306dd6ef855264a=1492694821; Hm_lpvt_a2cb7064fdf52fd51306dd6ef855264a=1492912244')
-        .set("Accept",'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8')
-        .set('Content-Type','application/x-www-form-urlencoded')
-        .set('Referer','http://m.byr.cn/')
-        .set('User-Agent','Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36')
-        .set('Upgrade-Insecure-Requests','1')
         .end(function(err, res) {
-            console.log(res);
             if (err){
                 console.log('err!try again');
             }
+
             var topicUrls = [];
             var $ = cheerio.load(res.text);
-            $('.list>li a').each(function(index, element) {
+            //console.log(cheerio.load(res.text));
+            $('.list>li div:first-child a').each(function(index, element) {
                 var $element = $(element);
-                //console.log($element);
                 var href = url.resolve(cnodeUrl, $element.attr('href'));
                 topicUrls.push(href);
             });
-            //console.log(topicUrls);
             var data = [];
             /**
              * queue(worker, concurrency)
@@ -61,18 +55,17 @@ function getTitles (cookie) {
             var q = async.queue(function(task, callback) {
                     var topicUrl = task.topicUrl;
                     superagent.get(topicUrl)
-                        .set("Cookie",'nforum[UTMPUSERID]=centmaster; nforum[PASSWORD]=3BiOD9Oa3bii6juOdrIr4A%3D%3D; nforum[UTMPKEY]=31287208; nforum[UTMPNUM]=915; Hm_lvt_a2cb7064fdf52fd51306dd6ef855264a=1492694821; Hm_lpvt_a2cb7064fdf52fd51306dd6ef855264a=1492912244')
-                        .set("Accept",'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8')
-                        .set('Content-Type','application/x-www-form-urlencoded')
-                        .set('Referer','http://m.byr.cn/')
-                        .set('User-Agent','Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36')
-                        .set('Upgrade-Insecure-Requests','1')
-                        .end(function(err, res) {
-                            var $ = cheerio.load(res.text);
+                        .set("Cookie",'nforum[UTMPUSERID]=centmaster; nforum[PASSWORD]=3BiOD9Oa3bii6juOdrIr4A%3D%3D; nforum[UTMPKEY]=42181103; nforum[UTMPNUM]=4991; Hm_lvt_a2cb7064fdf52fd51306dd6ef855264a=1492694821; Hm_lpvt_a2cb7064fdf52fd51306dd6ef855264a=1493030308')
+                        .end(function(err, sres) {
+                            if (err){
+                                console.log('err!try again');
+                            }
+                            var $ = cheerio.load(sres.text);
+                            console.log($('body').text());
                             var result = {
-                                title: $('.f').text().trim(),
+                                title: $('#m_main .f').text().trim(),
                                 href: topicUrl,
-                                //content: $('.reply_content').eq(0).text().trim()
+                                content: $('#wraper .logo').text().trim()
                             };
                                 callback(data.push(result));
                         });
@@ -83,7 +76,7 @@ function getTitles (cookie) {
              */
             q.drain = function() {
                 console.log('all tasks have been processed');
-                console.log(data);
+               // console.log(data);
             };
 
             /**
@@ -91,7 +84,7 @@ function getTitles (cookie) {
              */
             topicUrls.forEach(function(topicUrl) {
                 q.push({ topicUrl: topicUrl }, function(err) {
-                    console.log('push finished ' + topicUrl);
+                   console.log('push finished ' + topicUrl);
                 });
             });
         });
@@ -99,10 +92,6 @@ function getTitles (cookie) {
 };
 
 
-
-
-
-// $('.topic_full_title').text().trim()
 
 
 
