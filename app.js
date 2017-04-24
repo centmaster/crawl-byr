@@ -56,16 +56,15 @@ function getTitles (cookie) {
                     var topicUrl = task.topicUrl;
                     superagent.get(topicUrl)
                         .set("Cookie",'nforum[UTMPUSERID]=centmaster; nforum[PASSWORD]=3BiOD9Oa3bii6juOdrIr4A%3D%3D; nforum[UTMPKEY]=42181103; nforum[UTMPNUM]=4991; Hm_lvt_a2cb7064fdf52fd51306dd6ef855264a=1492694821; Hm_lpvt_a2cb7064fdf52fd51306dd6ef855264a=1493030308')
-                        .end(function(err, sres) {
+                        .end(function(err, res) {
                             if (err){
                                 console.log('err!try again');
                             }
-                            var $ = cheerio.load(sres.text);
-                            console.log($('body').text());
+                            var che = cheerio.load(res.text);
                             var result = {
-                                title: $('#m_main .f').text().trim(),
+                                title: che('#wraper').text().trim(),
                                 href: topicUrl,
-                                content: $('#wraper .logo').text().trim()
+                                content: che('#wraper .logo').text().trim()
                             };
                                 callback(data.push(result));
                         });
@@ -75,8 +74,8 @@ function getTitles (cookie) {
              * 监听：当所有任务都执行完以后，将调用该函数
              */
             q.drain = function() {
-                console.log('all tasks have been processed');
-               // console.log(data);
+                //console.log('all tasks have been processed');
+                //console.log(data);
             };
 
             /**
@@ -84,7 +83,7 @@ function getTitles (cookie) {
              */
             topicUrls.forEach(function(topicUrl) {
                 q.push({ topicUrl: topicUrl }, function(err) {
-                   console.log('push finished ' + topicUrl);
+                   //console.log('push finished ' + topicUrl);
                 });
             });
         });
